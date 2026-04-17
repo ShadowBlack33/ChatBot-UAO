@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot CRAI UAO</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" viewBox="0 0 40 40" fill="none" aria-label="CRAI UAO">
+          <rect width="40" height="40" rx="10" fill="#0f766e"/>
+          <path d="M11 29 Q20 11 29 29" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="20" cy="15" r="3.5" fill="white"/>
+        </svg>
+        <div>
+          <div class="sidebar-title">CRAI UAO</div>
+          <div class="sidebar-sub">Asistente RAG</div>
+        </div>
+      </div>
+
+      <button class="new-chat-btn" id="newChatBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva conversación
+      </button>
+
+      <div class="sidebar-section-title">Preguntas sugeridas</div>
+      <div class="suggestions-list" id="suggestionsList">
+        {% for s in suggestions %}
+        <button class="suggestion-chip" data-q="{{ s }}">{{ s }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+          <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <span id="themeLabel">Modo oscuro</span>
+        </button>
+        <div class="sidebar-credits">Prototipo RAG · Equipo NovIA</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CHAT -->
+    <main class="chat-main">
+      <header class="chat-header">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menú">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="chat-header-info">
+          <span class="chat-header-title">Chatbot CRAI UAO</span>
+          <span class="status-dot" id="statusDot"></span>
+          <span class="chat-header-sub" id="statusLabel">Listo</span>
+        </div>
+        <div class="header-actions">
+          <span class="chunks-badge" id="chunksBadge" style="display:none"></span>
+        </div>
+      </header>
+
+      <!-- MENSAJES -->
+      <div class="messages-area" id="messagesArea">
+        <div class="welcome-screen" id="welcomeScreen">
+          <svg class="welcome-logo" viewBox="0 0 60 60" fill="none">
+            <rect width="60" height="60" rx="15" fill="#0f766e"/>
+            <path d="M16 43 Q30 17 44 43" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="30" cy="22" r="5" fill="white"/>
+          </svg>
+          <h2>Hola, soy el asistente del CRAI</h2>
+          <p>Puedo ayudarte con información sobre servicios, recursos, horarios, reglamentos y espacios de la biblioteca de la UAO.</p>
+          <div class="welcome-chips">
+            {% for s in suggestions[:3] %}
+            <button class="welcome-chip" data-q="{{ s }}">{{ s }}</button>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- INPUT -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea
+            id="questionInput"
+            class="chat-input"
+            placeholder="Escribe tu pregunta sobre el CRAI..."
+            rows="1"
+          ></textarea>
+          <button id="sendBtn" class="send-btn" aria-label="Enviar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <p class="input-disclaimer">
+          Información basada en fuentes del CRAI UAO · Para datos en tiempo real consulta
+          <a href="https://www.uao.edu.co/biblioteca" target="_blank" rel="noopener">uao.edu.co/biblioteca</a>
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  const messagesArea = document.getElementById('messagesArea');
+  const welcomeScreen = document.getElementById('welcomeScreen');
+  const questionInput = document.getElementById('questionInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const newChatBtn = document.getElementById('newChatBtn');
+  const statusDot = document.getElementById('statusDot');
+  const statusLabel = document.getElementById('statusLabel');
+  const chunksBadge = document.getElementById('chunksBadge');
+  const themeToggle = document.getElementById('themeToggle');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+
+  let isLoading = false;
+  let darkMode = false;
+  let messageCount = 0;
+
+  // ── TEMA ──────────────────────────────────────────
+  themeToggle.addEventListener('click', () => {
+    darkMode = !darkMode;
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    document.getElementById('iconSun').style.display = darkMode ? 'none' : 'block';
+    document.getElementById('iconMoon').style.display = darkMode ? 'block' : 'none';
+    document.getElementById('themeLabel').textContent = darkMode ? 'Modo claro' : 'Modo oscuro';
+  });
+
+  // ── SIDEBAR TOGGLE MOBILE ─────────────────────────
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // ── AUTO-RESIZE TEXTAREA ──────────────────────────
+  questionInput.addEventListener('input', () => {
+    questionInput.style.height = 'auto';
+    questionInput.style.height = Math.min(questionInput.scrollHeight, 160) + 'px';
+  });
+
+  // ── ENTER PARA ENVIAR ─────────────────────────────
+  questionInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  sendBtn.addEventListener('click', handleSend);
+  newChatBtn.addEventListener('click', resetChat);
+
+  // ── SUGERENCIAS ───────────────────────────────────
+  document.querySelectorAll('.suggestion-chip, .welcome-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      questionInput.value = btn.dataset.q;
+      sidebar.classList.remove('open');
+      handleSend();
+    });
+  });
+
+  // ── ENVIAR PREGUNTA ───────────────────────────────
+  async function handleSend() {
+    const q = questionInput.value.trim();
+    if (!q || isLoading) return;
+
+    hideWelcome();
+    appendUserMessage(q);
+    questionInput.value = '';
+    questionInput.style.height = 'auto';
+
+    setLoading(true);
+    const typingEl = appendTyping();
+
+    try {
+      const res = await fetch('/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: q }),
+      });
+      const data = await res.json();
+      typingEl.remove();
+      appendBotMessage(data);
+    } catch (err) {
+      typingEl.remove();
+      appendBotMessage({
+        status: 'error',
+        answer: 'Ocurrió un error al conectar con el servidor.',
+        highlights: [],
+        sources: [],
+        timestamp: new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }),
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── RESET ─────────────────────────────────────────
+  async function resetChat() {
+    await fetch('/reset', { method: 'POST' });
+    messagesArea.innerHTML = '';
+    messagesArea.appendChild(welcomeScreen);
+    welcomeScreen.style.display = 'flex';
+    messageCount = 0;
+    chunksBadge.style.display = 'none';
+  }
+
+  // ── HELPERS UI ────────────────────────────────────
+  function hideWelcome() {
+    welcomeScreen.style.display = 'none';
+  }
+
+  function setLoading(val) {
+    isLoading = val;
+    sendBtn.disabled = val;
+    statusDot.className = val ? 'status-dot thinking' : 'status-dot';
+    statusLabel.textContent = val ? 'Pensando...' : 'Listo';
+  }
+
+  function appendUserMessage(text) {
+    messageCount++;
+    const el = document.createElement('div');
+    el.className = 'message user-message';
+    el.innerHTML = `<div class="bubble user-bubble">${escHtml(text)}</div>`;
+    messagesArea.appendChild(el);
+    scrollBottom();
+    animateIn(el);
+  }
+
+  function appendTyping() {
+    const el = document.createElement('div');
+    el.className = 'message bot-message';
+    el.innerHTML = `<div class="bot-avatar"></div><div class="bubble bot-bubble typing-bubble"><span></span><span></span><span></span></div>`;
+    messagesArea.appendChild(el);
+    scrollBottom();
+    return el;
+  }
+
+  function appendBotMessage(data) {
+    messageCount++;
+    const el = document.createElement('div');
+    el.className = 'message bot-message';
+
+    const statusColor = { ok: 'badge-ok', not_found: 'badge-warn', error: 'badge-error' }[data.status] || 'badge-error';
+    const statusText = { ok: 'Respuesta encontrada', not_found: 'Sin resultados', error: 'Error' }[data.status] || 'Error';
+
+    // Formatear answer: convertir bullet points y negritas
+    const formattedAnswer = formatAnswer(data.answer || '');
+
+    let highlightsHTML = '';
+    if (data.highlights && data.highlights.length) {
+      highlightsHTML = `
+        <details class="details-block">
+          <summary>Ver ${data.highlights.length} fragmento(s) fuente</summary>
+          <div class="highlights-inner">
+            ${data.highlights.map(h => `
+              <div class="highlight-item">
+                <span class="hl-section">${escHtml(h.section)}</span>
+                <p class="hl-text">${escHtml(h.text)}</p>
+              </div>
+            `).join('')}
+          </div>
+        </details>`;
+    }
+
+    let sourcesHTML = '';
+    if (data.sources && data.sources.length) {
+      const icons = { alta: '🟢', media: '🟡', baja: '🔴' };
+      sourcesHTML = `
+        <div class="sources-row">
+          ${data.sources.map(s => `
+            <a href="${s.url}" target="_blank" rel="noopener" class="source-pill">
+              ${icons[s.stability] || '⚪'} ${escHtml(s.title)}
+            </a>
+          `).join('')}
+        </div>`;
+    }
+
+    el.innerHTML = `
+      <div class="bot-avatar"></div>
+      <div class="bubble bot-bubble">
+        <div class="bot-meta">
+          <span class="badge ${statusColor}">${statusText}</span>
+          <span class="msg-time">${data.timestamp || ''}</span>
+          ${data.chunks_used ? `<span class="msg-chunks">${data.chunks_used} fragmentos</span>` : ''}
+        </div>
+        <div class="answer-text">${formattedAnswer}</div>
+        ${highlightsHTML}
+        ${sourcesHTML}
+      </div>`;
+
+    messagesArea.appendChild(el);
+    scrollBottom();
+    animateIn(el);
+
+    if (data.chunks_used) {
+      chunksBadge.textContent = `${data.chunks_used} chunks`;
+      chunksBadge.style.display = 'inline-block';
+    }
+  }
+
+  function formatAnswer(text) {
+    // Negritas **texto**
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Bullet points • o -
+    const lines = text.split('\n');
+    let html = '';
+    let inList = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.match(/^\d+\./)) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += `<li>${escHtml(trimmed.replace(/^[•\-]\s*/, '').replace(/^\d+\.\s*/, '')).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>`;
+      } else {
+        if (inList) { html += '</ul>'; inList = false; }
+        if (trimmed) html += `<p>${trimmed}</p>`;
+      }
+    }
+    if (inList) html += '</ul>';
+    return html || `<p>${escHtml(text)}</p>`;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function scrollBottom() {
+    messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: 'smooth' });
+  }
+
+  function animateIn(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(12px)';
+    requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  }
+  </script>
+</body>
+</html>

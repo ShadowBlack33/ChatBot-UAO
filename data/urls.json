@@ -1,0 +1,58 @@
+[
+  {
+    "title": "CRAI - página principal",
+    "url": "https://www.uao.edu.co/biblioteca",
+    "type": "institucional",
+    "topic": "informacion_general",
+    "stability": "media"
+  },
+  {
+    "title": "Servicios del CRAI",
+    "url": "https://www.uao.edu.co/servicios-crai/",
+    "type": "institucional",
+    "topic": "servicios",
+    "stability": "alta"
+  },
+  {
+    "title": "Recursos digitales",
+    "url": "https://www.uao.edu.co/recursos-digitales/",
+    "type": "institucional",
+    "topic": "recursos_digitales",
+    "stability": "media"
+  },
+  {
+    "title": "Reglamento del CRAI",
+    "url": "https://www.uao.edu.co/reglamento-del-crai/",
+    "type": "institucional",
+    "topic": "reglamento",
+    "stability": "alta"
+  },
+  {
+    "title": "LibCal UAO",
+    "url": "https://uao.libcal.com",
+    "type": "operativa",
+    "topic": "reservas_y_horarios",
+    "stability": "baja"
+  },
+  {
+    "title": "LibGuides - Recursos Biblioteca",
+    "url": "https://uao.libguides.com/recursos",
+    "type": "institucional",
+    "topic": "guias_y_recursos",
+    "stability": "media"
+  },
+  {
+    "title": "LibGuides - Búsqueda Total",
+    "url": "https://uao.libguides.com/busquedatotal",
+    "type": "institucional",
+    "topic": "busqueda_academica",
+    "stability": "media"
+  },
+  {
+    "title": "Actualización del catálogo OPAC",
+    "url": "https://www.uao.edu.co/biblioteca/el-crai-actualiza-su-catalogo/",
+    "type": "temporal",
+    "topic": "catalogo_y_novedades",
+    "stability": "baja"
+  }
+]

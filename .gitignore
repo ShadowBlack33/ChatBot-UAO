@@ -1,0 +1,30 @@
+# Variables de entorno — NUNCA subir al repo
+.env
+
+# Entorno virtual Python
+venv/
+env/
+.venv/
+
+# Datos generados por el pipeline (se regeneran con los scripts)
+data/raw/
+data/clean/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
