@@ -289,7 +289,9 @@ Incluye:
 
 | Integrante | Rol |
 |---|---|
-| Carlos & Esteban | Scraping, pipeline de datos, backend e interfaz |
-| Sara & David | Integración LLM y extensión del sistema |
+| Carlos Andrés Orozco Caicedo | Scraping, pipeline de datos, backend e interfaz |
+| Esteban Cobo Gómez | Scraping, pipeline de datos, backend e interfaz |
+| Sara Lucía Rojas Mejía | Integración LLM y extensión del sistema |
+| José David Mesa Ramírez | Integración LLM y extensión del sistema |
 
 > Prototipo académico desarrollado para el CRAI UAO · 2026
