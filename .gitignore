@@ -1,14 +1,16 @@
 # Variables de entorno — NUNCA subir al repo
 .env
+.env.*
 
 # Entorno virtual Python
 venv/
 env/
 .venv/
 
-# Datos generados por el pipeline (se regeneran con los scripts)
+# Datos generados
 data/raw/
-data/clean/
+data/clean/*
+!data/clean/chunks.json
 
 # Python cache
 __pycache__/
@@ -29,5 +31,5 @@ desktop.ini
 # Logs
 *.log
 
-#Presentacion Diapositivas
+# Presentación
 ChatbotCRAI_NovIA.pptx.pptx
