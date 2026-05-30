@@ -1,35 +1,23 @@
 """
 app.py — Backend Flask RAG CRAI UAO v2
-Mejoras: historial multi-turn, respuesta estructurada, top-K dinámico,
-sugerencias automáticas, endpoint de estadísticas.
+Usa FAISS para retrieval semántico.
 """
-import json
 import os
-from pathlib import Path
 from datetime import datetime
 
+import secrets
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request, session
 from groq import Groq
-import secrets
+
+from app.faiss_store import get_stats, search
 
 load_dotenv()
-
-BASE_DIR = Path(__file__).resolve().parents[1]
-CHUNK_FILE = BASE_DIR / "data" / "clean" / "chunks.json"
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-STOPWORDS = {
-    "qué", "que", "cuál", "cual", "cómo", "como", "dónde", "donde",
-    "es", "son", "hay", "tiene", "tienen", "para", "por", "con",
-    "de", "del", "la", "el", "los", "las", "un", "una", "en",
-    "se", "al", "y", "o", "a", "me", "puedo", "puedes", "quiero",
-    "saber", "decir", "dime", "favor", "porfavor", "hola", "buenas",
-}
 
 TOPIC_KEYWORDS = {
     "servicios": ["servicio", "servicios", "ofrece", "préstamo", "prestamo", "capacitación", "egresado", "docente", "cultural", "club", "lectura"],
@@ -49,23 +37,6 @@ SUGGESTED_QUESTIONS = [
     "¿Qué espacios físicos tiene el CRAI?",
 ]
 
-_chunks_cache = None
-
-
-def load_chunks() -> list:
-    global _chunks_cache
-    if _chunks_cache is not None:
-        return _chunks_cache
-    if not CHUNK_FILE.exists():
-        return []
-    with open(CHUNK_FILE, "r", encoding="utf-8") as f:
-        _chunks_cache = json.load(f)
-    return _chunks_cache
-
-
-def tokenize(text: str) -> set:
-    return set(text.lower().split()) - STOPWORDS
-
 
 def detect_topic(question: str) -> str | None:
     q = question.lower()
@@ -75,40 +46,11 @@ def detect_topic(question: str) -> str | None:
     return None
 
 
-def search(question: str, chunks: list, top_k: int = 5) -> list:
-    q_words = tokenize(question)
-    if not q_words:
-        return []
-
-    topic = detect_topic(question)
-    scored = []
-
-    for chunk in chunks:
-        text = chunk.get("chunk", "").lower()
-        score = sum(1 for w in q_words if w in text)
-        if score == 0:
-            continue
-        if topic and chunk.get("topic") == topic:
-            score += 2
-        if chunk.get("stability") == "alta":
-            score += 1
-        heading = chunk.get("section", "").lower()
-        heading_hits = sum(1 for w in q_words if w in heading)
-        score += heading_hits * 2
-        scored.append((score, chunk))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-
-    high_conf = [s for s in scored if s[0] >= 4]
-    k = min(top_k + 2, len(scored)) if len(high_conf) >= 3 else top_k
-    return [item[1] for item in scored[:k]]
-
-
 def build_highlights(matches: list) -> list:
     highlights = []
     seen = set()
     for m in matches:
-        text = m["chunk"].strip()
+        text = m.get("chunk", "").strip()
         key = text[:150]
         if key in seen:
             continue
@@ -127,14 +69,14 @@ def build_sources(matches: list) -> list:
     seen = set()
     sources = []
     for m in matches:
-        key = m["source"]
+        key = m.get("source")
         if key not in seen:
             seen.add(key)
             sources.append({
-                "title": m["title"],
-                "url": m["source"],
-                "topic": m["topic"],
-                "stability": m["stability"],
+                "title": m.get("title", ""),
+                "url": m.get("source", ""),
+                "topic": m.get("topic", ""),
+                "stability": m.get("stability", ""),
             })
     return sources
 
@@ -154,11 +96,8 @@ def generate_answer(question: str, highlights: list, history: list) -> str:
             "Te recomiendo consultar directamente en [uao.edu.co/biblioteca](https://www.uao.edu.co/biblioteca)."
         )
 
-    contexto = "\n\n".join([
-        f"[{h['section']}]: {h['text']}" for h in highlights
-    ])
+    contexto = "\n\n".join([f"[{h['section']}]: {h['text']}" for h in highlights])
 
-    
     system_prompt = """Eres un asistente virtual del CRAI (Centro de Recursos para el Aprendizaje y la Investigación) de la Universidad Autónoma de Occidente (UAO), en Cali, Colombia.
 
 Tu función es ayudar a estudiantes, docentes y usuarios con información sobre servicios, recursos, reglamentos y espacios del CRAI.
@@ -175,10 +114,8 @@ Reglas estrictas:
 6. Sé conciso: máximo 200 palabras.
 7. NUNCA respondas con información que no esté explícitamente en el contexto dado."""
 
-    history_messages = build_history_messages(history)
-
     messages = [{"role": "system", "content": system_prompt}]
-    messages.extend(history_messages)
+    messages.extend(build_history_messages(history))
     messages.append({
         "role": "user",
         "content": f"Contexto recuperado del CRAI:\n{contexto}\n\nPregunta: {question}"
@@ -187,10 +124,9 @@ Reglas estrictas:
     response = groq_client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=messages,
-        temperature=0.2,   # ✅ MEJORA 2: bajamos de 0.3 a 0.2 para menos creatividad/alucinación
+        temperature=0.2,
         max_tokens=600,
     )
-
     return response.choices[0].message.content.strip()
 
 
@@ -214,16 +150,8 @@ def ask():
             "sources": []
         }), 400
 
-    chunks = load_chunks()
-    if not chunks:
-        return jsonify({
-            "status": "error",
-            "answer": "La base de conocimiento no está disponible. Ejecuta scrape.py, clean.py y chunk.py.",
-            "highlights": [],
-            "sources": []
-        }), 503
-
-    matches = search(question, chunks)
+    topic = detect_topic(question)
+    matches = search(question, top_k=5, topic=topic)
 
     if not matches:
         return jsonify({
@@ -242,14 +170,13 @@ def ask():
     history.append({"question": question, "answer": answer})
     session["history"] = history[-10:]
 
-    
     return jsonify({
         "status": "ok",
         "answer": answer,
         "highlights": highlights,
         "sources": sources,
         "timestamp": datetime.now().strftime("%H:%M"),
-        "topic": detect_topic(question),
+        "topic": topic,
         "chunks_used": len(matches),
         "retrieval_info": f"Se usaron {len(matches)} fragmentos del CRAI como contexto.",
     })
@@ -263,16 +190,8 @@ def reset():
 
 @app.route("/stats")
 def stats():
-    chunks = load_chunks()
-    topics = {}
-    for c in chunks:
-        t = c.get("topic", "otro")
-        topics[t] = topics.get(t, 0) + 1
-    return jsonify({
-        "total_chunks": len(chunks),
-        "topics": topics,
-        "sources": list({c["source"] for c in chunks}),
-    })
+    data = get_stats()
+    return jsonify(data)
 
 
 if __name__ == "__main__":
