@@ -1,0 +1,136 @@
+# DAVID_NOTES
+
+## Evaluación y métricas del sistema RAG - CRAI UAO
+
+**Fecha:** 2026-05-31
+**Rama de trabajo:** `feature/david-evaluation`
+
+## Objetivo
+
+Evaluar el desempeño del sistema RAG del chatbot del CRAI mediante métricas de recuperación de información, validando la calidad del retrieval semántico usando embeddings y FAISS.
+
+## Archivos trabajados
+
+* `evaluation.py`
+* `resultados_evaluacion.csv`
+* `app/faiss_store.py`
+* `data/vector_store/index.faiss`
+* `data/vector_store/metadata.json`
+
+## Qué se evaluó
+
+* Recuperación de chunks relevantes mediante FAISS.
+* Calidad de resultados retornados por el retrieval.
+* Precisión de los resultados recuperados.
+* Posición del primer resultado relevante.
+* Tiempo de respuesta del sistema.
+* Comportamiento ante consultas ambiguas o altamente específicas.
+
+## Métricas utilizadas
+
+| Métrica             | Descripción                                                         |
+| ------------------- | ------------------------------------------------------------------- |
+| 🎯 Precision@5      | Proporción de chunks relevantes dentro de los primeros 5 resultados |
+| 📌 Hit@5            | Evalúa si al menos un resultado relevante fue recuperado            |
+| 🧠 MRR              | Evalúa qué tan arriba aparece el primer resultado correcto          |
+| ⚡ Latencia promedio | Tiempo promedio de respuesta del retrieval                          |
+
+## Resumen de resultados
+
+| Emoji | Métrica              | Resultado |
+| ----- | -------------------- | --------- |
+| 📌    | Hit@5 promedio       | 0.95      |
+| 🎯    | Precision@5 promedio | 0.84      |
+| 🧠    | MRR promedio         | 0.93      |
+| ⚡     | Latencia promedio    | 0.33 s    |
+
+## Resumen de validación
+
+| Emoji | Componente evaluado                        | Resultado |
+| ----- | ------------------------------------------ | --------- |
+| 🌿    | Rama de trabajo `feature/david-evaluation` | ✅ OK      |
+| 🔎    | Recuperación semántica con FAISS           | ✅ OK      |
+| 📚    | Recuperación de chunks relevantes          | ✅ OK      |
+| 📊    | Generación automática de métricas          | ✅ OK      |
+| ⚡     | Tiempo de respuesta del retrieval          | ✅ OK      |
+| 🧠    | Ranking del primer resultado relevante     | ✅ OK      |
+| 🗂️   | Exportación de resultados CSV              | ✅ OK      |
+
+## Cantidad de pruebas realizadas
+
+* Total de consultas evaluadas: **20**
+* Total de consultas exitosas: **19**
+* Total de consultas fallidas: **1**
+
+## Pruebas realizadas
+
+### 1. Consulta general
+
+**Pregunta:** `¿Qué es el CRAI?`
+**Resultado:** recuperación correcta de chunks institucionales relacionados con recursos y servicios del CRAI.
+
+### 2. Consulta de servicios
+
+**Pregunta:** `¿Qué servicios ofrece el CRAI?`
+**Resultado:** recuperación correcta de chunks relacionados con servicios, reglamentos y recursos institucionales.
+
+### 3. Consulta de reglamento
+
+**Pregunta:** `¿Qué pasa si pierdo un libro prestado?`
+**Resultado:** recuperación correcta de información normativa y reglamento de préstamos.
+
+### 4. Consulta de recursos digitales
+
+**Pregunta:** `¿Qué recursos digitales hay disponibles?`
+**Resultado:** recuperación correcta de fuentes relacionadas con recursos electrónicos y bases de datos.
+
+### 5. Consulta fallida
+
+**Pregunta:** `¿Cuántos parqueaderos tiene el CRAI?`
+**Resultado:** no se recuperó información relevante, indicando ausencia o baja representación de esa información en la base documental.
+
+## Tabla de resultados destacados
+
+| Emoji | Tipo de consulta               | Resultado principal                                 |
+| ----- | ------------------------------ | --------------------------------------------------- |
+| 💬    | Consulta institucional         | Recuperación correcta de información general        |
+| 📚    | Consulta de reglamento         | Recuperación correcta de políticas y normas         |
+| 💻    | Consulta de recursos digitales | Recuperación correcta de fuentes electrónicas       |
+| ⚠️    | Consulta altamente específica  | Presencia de ruido semántico o falta de información |
+| ⚡     | Rendimiento                    | Respuestas en tiempo casi real                      |
+
+## Qué quedó funcionando
+
+* Evaluación automática del retrieval
+* Medición de métricas RAG
+* Validación de chunks recuperados
+* Exportación de resultados a CSV
+* Identificación de errores y ruido semántico
+* Medición de latencia del sistema
+
+## Hallazgos encontrados
+
+* El sistema presenta buen desempeño en consultas institucionales y reglamentarias.
+* El primer resultado suele ser relevante para el usuario.
+* Algunas consultas ambiguas generan recuperación parcial de chunks relevantes.
+* La información muy específica puede no estar representada en los documentos indexados.
+* El retrieval responde en tiempo casi real después de la carga inicial del modelo.
+
+## Errores detectados
+
+* Ruido semántico en algunas consultas generales.
+* Recuperación parcial en preguntas ambiguas.
+* Consultas extremadamente específicas pueden no encontrar información relevante.
+* La primera carga del modelo genera una latencia inicial superior al promedio.
+
+## Pendientes y mejoras futuras
+
+* Mejorar segmentación y tamaño de chunks.
+* Optimizar clasificación temática de consultas.
+* Aumentar cobertura documental del CRAI.
+* Implementar reranking de resultados recuperados.
+* Mejorar manejo de consultas ambiguas y preguntas fuera de dominio.
+
+## Conclusión
+
+Las pruebas realizadas evidencian que el sistema RAG del chatbot del CRAI logra recuperar información relevante en la mayoría de las consultas realizadas, utilizando embeddings semánticos y búsqueda vectorial con FAISS. Las métricas obtenidas muestran un comportamiento estable, preciso y rápido para consultas institucionales reales, aunque aún existen oportunidades de mejora relacionadas con ambigüedad semántica y cobertura documental.
