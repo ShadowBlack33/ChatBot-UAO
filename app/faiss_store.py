@@ -13,7 +13,9 @@ from sentence_transformers import SentenceTransformer
 BASE_DIR = Path(__file__).resolve().parents[1]
 INDEX_FILE = BASE_DIR / "data" / "vector_store" / "index.faiss"
 METADATA_FILE = BASE_DIR / "data" / "vector_store" / "metadata.json"
+
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+MODEL_MAX_SEQ_LENGTH = 128
 
 _embedder = None
 _index = None
@@ -24,6 +26,7 @@ def get_embedder() -> SentenceTransformer:
     global _embedder
     if _embedder is None:
         _embedder = SentenceTransformer(EMBEDDING_MODEL)
+        _embedder.max_seq_length = MODEL_MAX_SEQ_LENGTH
     return _embedder
 
 
@@ -33,10 +36,7 @@ def load_store():
     if _index is not None and _metadata is not None:
         return _index, _metadata
 
-    if not INDEX_FILE.exists():
-        return None, []
-
-    if not METADATA_FILE.exists():
+    if not INDEX_FILE.exists() or not METADATA_FILE.exists():
         return None, []
 
     _index = faiss.read_index(str(INDEX_FILE))
@@ -55,7 +55,8 @@ def search(question: str, top_k: int = 5, topic: str | None = None) -> list[dict
     query_vector = embedder.encode(
         [question],
         normalize_embeddings=True,
-        show_progress_bar=False
+        convert_to_numpy=True,
+        show_progress_bar=False,
     )
     query_vector = np.asarray(query_vector, dtype=np.float32)
 
@@ -80,8 +81,8 @@ def search(question: str, top_k: int = 5, topic: str | None = None) -> list[dict
 
 def get_stats() -> dict[str, Any]:
     _, metadata = load_store()
-    topics = {}
-    sources = set()
+    topics: dict[str, int] = {}
+    sources: set[str] = set()
 
     for item in metadata:
         t = item.get("topic", "otro")

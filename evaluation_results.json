@@ -1,0 +1,369 @@
+{
+  "summary": {
+    "hit@5_promedio": 0.95,
+    "precision@5_promedio": 0.79,
+    "recall@5_promedio": 0.91,
+    "mrr_promedio": 0.93,
+    "latencia_promedio_segundos": 0.25
+  },
+  "results": [
+    {
+      "pregunta": "¿Qué es el CRAI?",
+      "tema_esperado": "informacion_general",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 4.81,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Cuál es el horario del CRAI?",
+      "tema_esperado": "reservas_y_horarios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.4,
+      "recall@5": 0.5,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento, servicios",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+    },
+    {
+      "pregunta": "¿Dónde queda el CRAI?",
+      "tema_esperado": "informacion_general",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué servicios ofrece el CRAI?",
+      "tema_esperado": "servicios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento, servicios",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+    },
+    {
+      "pregunta": "¿Cómo reservar una sala?",
+      "tema_esperado": "reservas_y_horarios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento, reservas_y_horarios",
+      "fuentes": "https://uao.libcal.com, https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué recursos digitales hay disponibles?",
+      "tema_esperado": "recursos_digitales",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        3,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.6,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "busqueda_academica, recursos_digitales, reglamento",
+      "fuentes": "https://uao.libguides.com/busquedatotal, https://www.uao.edu.co/recursos-digitales/, https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Cuál es el reglamento de préstamos?",
+      "tema_esperado": "reglamento",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.013,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué espacios físicos tiene el CRAI?",
+      "tema_esperado": "servicios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.8,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Puedo ingresar al CRAI si soy visitante externo?",
+      "tema_esperado": "informacion_general",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        3,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.6,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.011,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué pasa si pierdo un libro prestado?",
+      "tema_esperado": "reglamento",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿El CRAI tiene bases de datos académicas?",
+      "tema_esperado": "recursos_digitales",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.8,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Hay salas para capacitación?",
+      "tema_esperado": "servicios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        4
+      ],
+      "hit@5": 1,
+      "precision@5": 0.6,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué derechos tengo como usuario del CRAI?",
+      "tema_esperado": "reglamento",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué deberes tengo como usuario?",
+      "tema_esperado": "reglamento",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Puedo consultar recursos electrónicos desde casa?",
+      "tema_esperado": "recursos_digitales",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        2,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.4,
+      "recall@5": 0.67,
+      "mrr": 0.5,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "catalogo_y_novedades, reglamento",
+      "fuentes": "https://www.uao.edu.co/biblioteca/el-crai-actualiza-su-catalogo/, https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Qué es el préstamo interbibliotecario?",
+      "tema_esperado": "servicios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿El CRAI ofrece servicios para docentes?",
+      "tema_esperado": "servicios",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.8,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento, servicios",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+    },
+    {
+      "pregunta": "¿El CRAI apoya procesos de investigación?",
+      "tema_esperado": "busqueda_academica",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 0.8,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento, servicios",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+    },
+    {
+      "pregunta": "¿Cuántos parqueaderos tiene el CRAI?",
+      "tema_esperado": "informacion_general",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [],
+      "hit@5": 0,
+      "precision@5": 0.0,
+      "recall@5": 0.0,
+      "mrr": 0,
+      "latencia_segundos": 0.009,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    },
+    {
+      "pregunta": "¿Dónde queda exactamente la entrada principal del CRAI?",
+      "tema_esperado": "informacion_general",
+      "chunks_recuperados": 5,
+      "posiciones_relevantes": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "hit@5": 1,
+      "precision@5": 1.0,
+      "recall@5": 1.0,
+      "mrr": 1.0,
+      "latencia_segundos": 0.01,
+      "topicos_recuperados": "reglamento",
+      "fuentes": "https://www.uao.edu.co/reglamento-del-crai/"
+    }
+  ]
+}

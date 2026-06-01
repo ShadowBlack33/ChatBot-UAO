@@ -1,223 +1,274 @@
-# 🤖 ChatBot CRAI UAO · RAG Pipeline → Flask → Streamlit
+# ChatBot CRAI UAO · RAG Pipeline · FAISS · Flask · Streamlit
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.1.0-000000)](https://flask.palletsprojects.com/)
+[![Flask](https://img.shields.io/badge/Flask-3.x-000000)](https://flask.palletsprojects.com/)
+[![FAISS](https://img.shields.io/badge/FAISS-Vector%20Search-5C2D91)](https://faiss.ai/)
 [![Groq](https://img.shields.io/badge/Groq-LLaMA%203.1-F55036)](https://console.groq.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-E64A19)](https://streamlit.io/)
-[![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup4-Scraping-59b300)](https://www.crummy.com/software/BeautifulSoup/)
+[![SentenceTransformers](https://img.shields.io/badge/SentenceTransformers-Multilingual-0A7E8C)](https://www.sbert.net/)
 
-**ChatBot CRAI UAO** es un sistema conversacional de extremo a extremo basado en RAG (Retrieval-Augmented Generation) para el Centro de Recursos para el Aprendizaje y la Investigación de la Universidad Autónoma de Occidente, Cali, Colombia.
+**ChatBot CRAI UAO** es un sistema conversacional basado en RAG (Retrieval-Augmented Generation) para el Centro de Recursos para el Aprendizaje y la Investigación de la Universidad Autónoma de Occidente. El sistema extrae contenido real del CRAI, lo limpia, lo fragmenta en chunks, genera embeddings multilingües, indexa en FAISS y responde preguntas usando únicamente el contexto recuperado [web:953][file:520].
 
-> El modelo **no responde con conocimiento propio** — recupera fragmentos reales de las fuentes del CRAI y los usa como contexto para generar respuestas precisas y trazables.
->
-> **Equipo:** Equipo NovIA 🇨🇴
+> El modelo no responde con conocimiento propio: recupera fragmentos reales de las fuentes del CRAI y los usa como contexto para generar respuestas trazables y controladas [file:520].
 
----
-
-## 🧭 Tabla de contenidos
-
-- [🎯 Objetivo](#-objetivo)
-- [✨ Funcionalidades](#-funcionalidades)
-- [🏗️ Arquitectura](#-arquitectura)
-- [📚 Base de conocimiento](#-base-de-conocimiento)
-- [⚙️ Instalación y uso](#-instalación-y-uso)
-- [🗂️ Estructura del proyecto](#-estructura-del-proyecto)
-- [🔌 API Endpoints](#-api-endpoints)
-- [⚙️ Configuración del modelo](#-configuración-del-modelo)
-- [🖥️ Dashboard](#-dashboard)
-- [🛠️ Troubleshooting](#-troubleshooting)
-- [👥 Equipo](#-equipo)
+**Equipo:** Equipo NovIA
 
 ---
 
-## 🎯 Objetivo
+## Tabla de contenidos
 
-- Responder preguntas sobre servicios, recursos, reglamentos y espacios del CRAI usando información real y verificable.
-- Construir un pipeline RAG completo: scraping → limpieza → chunking → retrieval → generación.
-- Garantizar trazabilidad: cada respuesta expone los fragmentos fuente utilizados.
-- Evitar alucinaciones: el LLM responde **únicamente** con el contexto recuperado.
-
----
-
-## ✨ Funcionalidades
-
-- 🔍 **Scraping semántico** por secciones `h1/h2/h3` de las páginas del CRAI
-- 🧹 **Pipeline de limpieza** con filtrado de ruido, deduplicación y normalización
-- 📦 **Chunks con metadatos** (`topic`, `stability`, `section`, `source`, `review_date`)
-- 🎯 **Retriever con puntuación compuesta**: coincidencia léxica + bonus por tema + estabilidad + heading
-- 🔄 **Historial multi-turn** (últimos 6 mensajes / 3 turnos)
-- 🚫 **Control de alucinaciones** en system prompt con temperatura `0.2`
-- 💬 **Interfaz conversacional** estilo chat con fragmentos fuente colapsables
-- 🌗 **Modo oscuro / claro** con toggle
-- 📊 **Dashboard Streamlit** con estadísticas de la base de conocimiento
-- 📱 **Responsive** para móvil
+- [Objetivo](#objetivo)
+- [Funcionalidades](#funcionalidades)
+- [Arquitectura](#arquitectura)
+- [Base de conocimiento](#base-de-conocimiento)
+- [Evaluación](#evaluación)
+- [Instalación y uso](#instalación-y-uso)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [API](#api)
+- [Modelo y retrieval](#modelo-y-retrieval)
+- [Dashboard](#dashboard)
+- [Troubleshooting](#troubleshooting)
+- [Equipo](#equipo)
 
 ---
 
-## 🏗️ Arquitectura
+## Objetivo
 
-### 🔄 Flujo de datos
+- Responder preguntas sobre servicios, reglamentos, recursos y espacios del CRAI usando información real y verificable.
+- Construir un pipeline RAG completo: scraping, limpieza, chunking, embeddings, indexación, retrieval y generación.
+- Garantizar trazabilidad mostrando fragmentos y fuentes usadas en cada respuesta.
+- Reducir alucinaciones haciendo que el LLM responda solo con el contexto recuperado [file:520].
+
+---
+
+## Funcionalidades
+
+- Scraping semántico por secciones `h1/h2/h3` de páginas del CRAI.
+- Limpieza y filtrado de ruido sobre el corpus crudo.
+- Generación de chunks con metadatos completos.
+- Embeddings con `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, modelo multilingüe de 384 dimensiones para búsqueda semántica [web:953][web:987].
+- Indexación vectorial con FAISS para retrieval semántico.
+- Refuerzo ligero por tópico detectado al reordenar resultados recuperados.
+- Historial multi-turn en la conversación.
+- Respuestas controladas vía prompt para reducir alucinaciones.
+- Dashboard Streamlit con corpus, fuentes y métricas de evaluación.
+- Script `run.ps1` para orquestar pipeline, evaluación y arranque de servicios [cite:1].
+
+---
+
+## Arquitectura
+
+### Flujo de datos
 
 ```mermaid
 flowchart LR
-  A[URLs del CRAI] --> B[scraper/scrape.py]
+  A[urls.json] --> B[scraper/scrape.py]
   B --> C[data/raw/biblioteca_raw.json]
   C --> D[scraper/clean.py]
   D --> E[data/clean/biblioteca_clean.json]
   E --> F[scraper/chunk.py]
   F --> G[data/clean/chunks.json]
-  G --> H[app/ChatBotUAO.py]
-  H --> I[Retriever BM25-like]
-  I --> J[Groq API · LLaMA 3.1 8B]
-  J --> K[Flask /ask → JSON]
-  K --> L[Interfaz HTML/CSS/JS]
-  G --> M[dashboard.py · Streamlit]
+  G --> H[embeddings/index_faiss.py]
+  H --> I[data/vector_store/index.faiss]
+  H --> J[data/vector_store/metadata.json]
+  I --> K[app/faiss_store.py]
+  J --> K
+  K --> L[app/app.py]
+  L --> M[Groq API · LLaMA 3.1]
+  L --> N[Flask]
+  G --> O[evaluation.py]
+  O --> P[evaluation_results.json]
+  P --> Q[dashboard.py]
 ```
 
-### 🧠 Pipeline RAG
+### Pipeline RAG
 
 ```mermaid
 flowchart TD
-  Q[Pregunta del usuario] --> T[Tokenización + detección de tema]
-  T --> R[Retriever: score léxico + tema + estabilidad + heading]
-  R --> K[Top-K dinámico de chunks.json]
-  K --> C[Construcción del contexto]
-  C --> L[LLaMA 3.1 via Groq · temperature 0.2]
+  Q[Pregunta del usuario] --> T[Detección ligera de tema]
+  T --> E[Embedding de la consulta]
+  E --> F[Búsqueda semántica en FAISS]
+  F --> R[Top-K resultados]
+  R --> B[Refuerzo por tópico]
+  B --> C[Construcción del contexto]
+  C --> L[LLaMA 3.1 vía Groq]
   L --> A[Respuesta estructurada]
-  A --> F[Flask JSON: answer + highlights + sources]
+  A --> S[Fuentes + highlights]
 ```
 
 ---
 
-## 📚 Base de conocimiento
+## Base de conocimiento
 
-### Fuentes indexadas
+### Fuentes
 
-| Página | Tema | Estabilidad |
-|---|---|---|
-| CRAI — página principal | Información general | Media |
-| Servicios del CRAI | Servicios | Alta |
-| Recursos digitales | Recursos digitales | Media |
-| Reglamento del CRAI | Reglamento | Alta |
-| LibCal UAO | Reservas y horarios | Baja |
-| LibGuides — Búsqueda Total | Búsqueda académica | Media |
-| Catálogo OPAC | Catálogo y novedades | Baja |
-
-> Las fuentes con estabilidad **baja** cambian con frecuencia. Se recomienda re-ejecutar el pipeline periódicamente.
+Las fuentes se definen en `data/urls.json` junto con su tema y estabilidad. El corpus final depende del scraping y puede variar si una fuente cambia o no produce contenido útil en una ejecución determinada [file:520].
 
 ### Estructura de un chunk
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| `id` | string | Identificador único del fragmento |
-| `chunk` | string | Texto del fragmento |
-| `section` | string | Encabezado de sección de origen |
-| `source` | string | URL de la fuente |
+| `id` | string | Identificador único del chunk |
+| `doc_id` | string | Documento de origen |
+| `title` | string | Título de la fuente |
+| `section` | string | Encabezado de la sección |
+| `source` | string | URL de origen |
 | `topic` | string | Categoría temática |
-| `stability` | string | `alta` / `media` / `baja` |
-| `review_date` | string | Fecha de revisión recomendada |
+| `stability` | string | Estabilidad de la fuente |
+| `review_date` | string | Fecha de revisión |
+| `chunk` | string | Texto del fragmento |
+| `chunk_length_tokens` | int | Longitud aproximada en tokens |
+| `embedding_text` | string | Texto enriquecido usado para embeddings |
 
 ---
 
-## ⚙️ Instalación y uso
+## Evaluación
+
+El proyecto incluye una evaluación básica del **retrieval** usando preguntas de prueba y métricas de ranking exportadas a `evaluation_results.json` y `resultados_evaluacion.csv` [cite:1].
+
+### Métricas actuales
+
+- **Hit@5**: indica si al menos un resultado relevante aparece en el top 5 [web:1120].
+- **Precision@5**: proporción de resultados relevantes dentro de los 5 recuperados [web:1118].
+- **Recall@5**: proporción estimada de información relevante recuperada en el top 5 [web:1127].
+- **MRR**: mide qué tan arriba aparece el primer resultado relevante [web:1119][web:1122].
+- **Latencia**: tiempo de recuperación por consulta [cite:1].
+
+### Salidas de evaluación
+
+- `resultados_evaluacion.csv`
+- `evaluation_results.json`
+
+Estas salidas son consumidas por el dashboard para mostrar KPIs, tablas y gráficas de desempeño del retrieval [cite:1].
+
+---
+
+## Instalación y uso
+
+### 1. Clonar el proyecto
 
 ```bash
-# 1. Descomprimir o clonar el proyecto
-cd "ChatBot UAO"
+git clone https://github.com/ShadowBlack33/ChatBot-UAO.git
+cd ChatBot-UAO
+```
 
-# 2. Crear entorno virtual
+### 2. Crear entorno virtual
+
+```bash
 python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
-
-# 3. Instalar dependencias
-pip install -r requirements.txt
-
-# 4. Configurar API key de Groq
-# Crear cuenta gratuita en https://console.groq.com
-# Crear archivo .env en la raíz:
-echo GROQ_API_KEY=gsk_tuKeyAqui > .env
 ```
 
-### Ejecutar el pipeline completo
+**Windows**
+```bash
+venv\Scripts\activate
+```
+
+**macOS / Linux**
+```bash
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
 
 ```bash
-# Paso 1 — Scraping
+pip install -r requirements.txt
+```
+
+### 4. Configurar API key
+
+Crear un archivo `.env` en la raíz del proyecto:
+
+```env
+GROQ_API_KEY=gsk_tu_api_key_aqui
+```
+
+### 5. Ejecutar pipeline manual
+
+```bash
 python scraper/scrape.py
-
-# Paso 2 — Limpieza
 python scraper/clean.py
-
-# Paso 3 — Chunking
 python scraper/chunk.py
-
-# Paso 4 — Chatbot
-python app/ChatBotUAO.py
+python embeddings/index_faiss.py
+python evaluation.py
+python -m app.app
 ```
 
-Abrir en el navegador: **http://127.0.0.1:5000**
+### 6. Ejecutar dashboard
+
+```bash
+python -m streamlit run dashboard.py
+```
+
+### 7. Ejecución orquestada en Windows
+
+```powershell
+.\run.ps1
+```
+
+El script ejecuta scraping, limpieza, chunking, indexación FAISS, evaluación y luego levanta Flask y Streamlit [cite:1].
 
 ---
 
-## 🗂️ Estructura del proyecto
+## Estructura del proyecto
 
-```
-ChatBot UAO/
-│
-├── .env                        ← API key (NO subir a GitHub)
-├── .env.example                ← Plantilla del .env
+```text
+ChatBot-UAO/
+├── .env
 ├── .gitignore
-├── requirements.txt
 ├── README.md
-├── run.ps1                     ← Script de ejecución completa (Windows)
-├── dashboard.py                ← Dashboard Streamlit
-│
+├── requirements.txt
+├── run.ps1
+├── dashboard.py
+├── evaluation.py
+├── evaluation_results.json
+├── resultados_evaluacion.csv
 ├── data/
-│   ├── urls.json               ← URLs del CRAI con metadatos
+│   ├── urls.json
 │   ├── raw/
-│   │   └── biblioteca_raw.json ← Generado por scrape.py
-│   └── clean/
-│       ├── biblioteca_clean.json
-│       └── chunks.json         ← Base de conocimiento del RAG
-│
+│   │   └── biblioteca_raw.json
+│   ├── clean/
+│   │   ├── biblioteca_clean.json
+│   │   └── chunks.json
+│   └── vector_store/
+│       ├── index.faiss
+│       └── metadata.json
 ├── scraper/
-│   ├── scrape.py               ← Extracción semántica por secciones
-│   ├── clean.py                ← Limpieza, filtrado y deduplicación
-│   └── chunk.py                ← Generación de chunks con metadatos
-│
+│   ├── scrape.py
+│   ├── clean.py
+│   └── chunk.py
+├── embeddings/
+│   └── index_faiss.py
 └── app/
-    ├── ChatBotUAO.py           ← Backend Flask + retriever + Groq
+    ├── __init__.py
+    ├── app.py
+    ├── faiss_store.py
     ├── templates/
-    │   └── index.html          ← Interfaz conversacional
+    │   └── index.html
     └── static/
-        └── style.css           ← Estilos (modo oscuro, responsive)
+        └── style.css
 ```
 
 ---
 
-## 🔌 API Endpoints
+## API
 
 | Método | Endpoint | Descripción |
 |---|---|---|
 | `GET` | `/` | Interfaz del chatbot |
-| `POST` | `/ask` | Recibe `{"question": "..."}` → respuesta RAG |
-| `POST` | `/reset` | Limpia el historial de sesión |
-| `GET` | `/stats` | Estadísticas de la base de conocimiento |
+| `POST` | `/ask` | Recibe una pregunta y responde con RAG |
+| `POST` | `/reset` | Reinicia el historial conversacional |
+| `GET` | `/stats` | Devuelve estadísticas del corpus indexado |
 
-### Ejemplo de respuesta `/ask`
+### Ejemplo de `/ask`
 
 ```json
 {
   "status": "ok",
-  "answer": "El CRAI ofrece servicios de préstamo, capacitación...",
+  "answer": "El CRAI ofrece servicios de préstamo, capacitación y acceso a recursos digitales.",
   "highlights": [
     {
-      "section": "ESPACIOS FÍSICOS",
-      "text": "Sala de capacitación con 30 puestos...",
+      "section": "Servicios",
+      "text": "El CRAI ofrece préstamo, recursos digitales y espacios de estudio...",
       "topic": "servicios",
       "stability": "alta"
     }
@@ -225,7 +276,7 @@ ChatBot UAO/
   "sources": [
     {
       "title": "Servicios del CRAI",
-      "url": "https://...",
+      "url": "https://www.uao.edu.co/...",
       "topic": "servicios",
       "stability": "alta"
     }
@@ -239,53 +290,66 @@ ChatBot UAO/
 
 ---
 
-## ⚙️ Configuración del modelo
+## Modelo y retrieval
 
-| Parámetro | Valor | Descripción |
-|---|---|---|
-| `model` | `llama-3.1-8b-instant` | Modelo rápido para prototipo |
-| `temperature` | `0.2` | Respuestas precisas, baja creatividad |
-| `max_tokens` | `600` | Límite de tokens por respuesta |
-| `history` | Últimos 6 mensajes | Contexto conversacional multi-turn |
+### Generación
 
-Para usar un modelo más potente, cambiar en `app/ChatBotUAO.py`:
+| Parámetro | Valor |
+|---|---|
+| Modelo | `llama-3.1-8b-instant` |
+| Temperature | `0.2` |
+| Max tokens | `600` |
+| Historial | Últimos 6 mensajes |
 
-```python
-model="llama-3.3-70b-versatile"  # más inteligente, más lento
-```
+### Embeddings
+
+| Parámetro | Valor |
+|---|---|
+| Modelo | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
+| Tipo | Multilingüe |
+| Dimensión | 384 [web:953] |
+| Max sequence length | 128 tokens [web:953] |
+
+El modelo de embeddings soporta múltiples idiomas y está pensado para tareas de búsqueda semántica y clustering [web:953][web:987].
 
 ---
 
-## 🖥️ Dashboard
+## Dashboard
+
+El dashboard en Streamlit permite visualizar:
+
+- métricas generales del corpus,
+- distribución de chunks por tema y estabilidad,
+- relación entre fuentes y chunks generados,
+- explorador de chunks,
+- y métricas de evaluación del retrieval tomadas desde `evaluation_results.json` [cite:1].
+
+Ejecutar con:
 
 ```bash
-streamlit run dashboard.py
+python -m streamlit run dashboard.py
 ```
-
-Incluye:
-
-- Total de chunks indexados
-- Distribución por tema
-- Fuentes activas en la base de conocimiento
 
 ---
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 | Problema | Solución |
 |---|---|
-| `run.ps1` no se ejecuta | Correr `Unblock-File -Path .\run.ps1` en PowerShell |
-| `chunks.json` no existe | Ejecutar el pipeline completo: `scrape.py → clean.py → chunk.py` |
-| Error de API key | Verificar que `.env` existe y contiene `GROQ_API_KEY=gsk_...` |
-| Chatbot responde "no encontré información" | Re-ejecutar el pipeline para actualizar las fuentes |
-| LibGuides devuelve 0 secciones | Carga contenido con JS dinámico — requiere `selenium` o `playwright` |
-| venv apunta a carpeta incorrecta | Borrar `venv/`, recrear con `python -m venv venv` y reinstalar |
+| `run.ps1` no se ejecuta | Ejecutar `Unblock-File -Path .\run.ps1` en PowerShell |
+| `No module named 'app.faiss_store'` | Ejecutar Flask con `python -m app.app` |
+| `chunks.json` no existe | Ejecutar `scrape.py`, `clean.py` y `chunk.py` |
+| `index.faiss` o `metadata.json` no existen | Ejecutar `python embeddings/index_faiss.py` |
+| `evaluation_results.json` no existe | Ejecutar `python evaluation.py` |
+| Error de API key | Verificar `.env` y `GROQ_API_KEY` |
+| LibGuides devuelve 0 secciones | La página carga contenido dinámico y puede requerir Playwright o Selenium [file:520] |
+| Streamlit no toma el venv | Ejecutar `python -m streamlit run dashboard.py` dentro del entorno virtual [web:1147] |
 
 ---
 
-## 👥 Equipo
+## Equipo
 
-**Equipo NovIA** · Universidad Autónoma de Occidente 🇨🇴
+**Equipo NovIA** · Universidad Autónoma de Occidente
 
 | Integrante | Rol |
 |---|---|

@@ -1,21 +1,21 @@
-﻿pregunta,chunks_recuperados,posiciones_relevantes,hit@5,precision@5,mrr,latencia_segundos,fuentes
-¿Qué es el CRAI?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,6.28,https://www.uao.edu.co/reglamento-del-crai/
-¿Cuál es el horario del CRAI?,5,"[1, 2, 3]",1,0.6,1.0,0.01,"https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/, https://www.uao.edu.co/biblioteca"
-¿Dónde queda el CRAI?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿Qué servicios ofrece el CRAI?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,"https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
-¿Cómo reservar una sala?,5,"[1, 2, 3, 5]",1,0.8,1.0,0.02,"https://www.uao.edu.co/reglamento-del-crai/, https://uao.libcal.com"
-¿Qué recursos digitales hay disponibles?,5,"[1, 2, 3, 4]",1,0.8,1.0,0.02,"https://www.uao.edu.co/biblioteca/el-crai-actualiza-su-catalogo/, https://www.uao.edu.co/recursos-digitales/, https://uao.libguides.com/busquedatotal, https://www.uao.edu.co/reglamento-del-crai/"
-¿Cuál es el reglamento de préstamos?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿Qué espacios físicos tiene el CRAI?,5,"[1, 2, 3]",1,0.6,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿Puedo ingresar al CRAI si soy visitante externo?,5,"[2, 3, 4, 5]",1,0.8,0.5,0.02,"https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
-¿Qué pasa si pierdo un libro prestado?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿El CRAI tiene bases de datos académicas?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿Hay salas para capacitación?,5,"[1, 2, 5]",1,0.6,1.0,0.02,"https://www.uao.edu.co/reglamento-del-crai/, https://uao.libcal.com, https://www.uao.edu.co/servicios-crai/, https://www.uao.edu.co/recursos-digitales/"
-¿Qué derechos tengo como usuario del CRAI?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.03,https://www.uao.edu.co/reglamento-del-crai/
-¿Qué deberes tengo como usuario?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿Puedo consultar recursos electrónicos desde casa?,5,"[1, 2, 3, 5]",1,0.8,1.0,0.02,"https://www.uao.edu.co/recursos-digitales/, https://uao.libcal.com, https://uao.libguides.com/busquedatotal"
-¿Qué es el préstamo interbibliotecario?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,https://www.uao.edu.co/reglamento-del-crai/
-¿El CRAI ofrece servicios para docentes?,5,"[1, 2, 3, 5]",1,0.8,1.0,0.01,"https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
-¿El CRAI apoya procesos de investigación?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.02,"https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
-¿Cuántos parqueaderos tiene el CRAI?,5,[],0,0.0,0.0,0.01,https://www.uao.edu.co/reglamento-del-crai/
-¿Dónde queda exactamente la entrada principal del CRAI?,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,0.03,https://www.uao.edu.co/reglamento-del-crai/
+﻿pregunta,tema_esperado,chunks_recuperados,posiciones_relevantes,hit@5,precision@5,recall@5,mrr,latencia_segundos,topicos_recuperados,fuentes
+¿Qué es el CRAI?,informacion_general,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,4.81,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Cuál es el horario del CRAI?,reservas_y_horarios,5,"[1, 5]",1,0.4,0.5,1.0,0.01,"reglamento, servicios","https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+¿Dónde queda el CRAI?,informacion_general,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.009,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Qué servicios ofrece el CRAI?,servicios,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.01,"reglamento, servicios","https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+¿Cómo reservar una sala?,reservas_y_horarios,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.009,"reglamento, reservas_y_horarios","https://uao.libcal.com, https://www.uao.edu.co/reglamento-del-crai/"
+¿Qué recursos digitales hay disponibles?,recursos_digitales,5,"[1, 3, 5]",1,0.6,1.0,1.0,0.009,"busqueda_academica, recursos_digitales, reglamento","https://uao.libguides.com/busquedatotal, https://www.uao.edu.co/recursos-digitales/, https://www.uao.edu.co/reglamento-del-crai/"
+¿Cuál es el reglamento de préstamos?,reglamento,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.013,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Qué espacios físicos tiene el CRAI?,servicios,5,"[1, 2, 3, 5]",1,0.8,1.0,1.0,0.01,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Puedo ingresar al CRAI si soy visitante externo?,informacion_general,5,"[1, 3, 5]",1,0.6,1.0,1.0,0.011,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Qué pasa si pierdo un libro prestado?,reglamento,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.01,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿El CRAI tiene bases de datos académicas?,recursos_digitales,5,"[1, 2, 3, 5]",1,0.8,1.0,1.0,0.01,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Hay salas para capacitación?,servicios,5,"[1, 2, 4]",1,0.6,1.0,1.0,0.009,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Qué derechos tengo como usuario del CRAI?,reglamento,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.01,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Qué deberes tengo como usuario?,reglamento,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.009,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Puedo consultar recursos electrónicos desde casa?,recursos_digitales,5,"[2, 5]",1,0.4,0.67,0.5,0.01,"catalogo_y_novedades, reglamento","https://www.uao.edu.co/biblioteca/el-crai-actualiza-su-catalogo/, https://www.uao.edu.co/reglamento-del-crai/"
+¿Qué es el préstamo interbibliotecario?,servicios,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.009,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿El CRAI ofrece servicios para docentes?,servicios,5,"[1, 3, 4, 5]",1,0.8,1.0,1.0,0.009,"reglamento, servicios","https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+¿El CRAI apoya procesos de investigación?,busqueda_academica,5,"[1, 2, 3, 5]",1,0.8,1.0,1.0,0.009,"reglamento, servicios","https://www.uao.edu.co/reglamento-del-crai/, https://www.uao.edu.co/servicios-crai/"
+¿Cuántos parqueaderos tiene el CRAI?,informacion_general,5,[],0,0.0,0.0,0.0,0.009,reglamento,https://www.uao.edu.co/reglamento-del-crai/
+¿Dónde queda exactamente la entrada principal del CRAI?,informacion_general,5,"[1, 2, 3, 4, 5]",1,1.0,1.0,1.0,0.01,reglamento,https://www.uao.edu.co/reglamento-del-crai/

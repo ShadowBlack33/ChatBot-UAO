@@ -17,6 +17,7 @@ INDEX_FILE = FAISS_DIR / "index.faiss"
 METADATA_FILE = FAISS_DIR / "metadata.json"
 
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+MODEL_MAX_SEQ_LENGTH = 128
 BATCH_SIZE = 16
 
 
@@ -25,12 +26,32 @@ def load_chunks() -> list[dict]:
         raise FileNotFoundError(f"No existe el archivo: {CHUNK_FILE}")
 
     with open(CHUNK_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    if not isinstance(data, list):
+        raise ValueError("chunks.json debe contener una lista de chunks.")
+
+    return data
 
 
-def batch_iterable(items, batch_size):
+def batch_iterable(items: list[dict], batch_size: int):
     for i in range(0, len(items), batch_size):
         yield items[i:i + batch_size]
+
+
+def validate_chunks(chunks: list[dict]):
+    required_fields = [
+        "id", "doc_id", "chunk_index", "total_chunks_in_section",
+        "title", "section", "source", "type", "topic", "stability",
+        "review_date", "chunk_length_chars", "chunk_length_tokens",
+        "chunk", "embedding_text",
+    ]
+    for idx, item in enumerate(chunks, start=1):
+        missing = [f for f in required_fields if f not in item]
+        if missing:
+            raise KeyError(f"Chunk #{idx} (id={item.get('id')}) faltan campos: {missing}")
+        if not isinstance(item["embedding_text"], str) or not item["embedding_text"].strip():
+            raise ValueError(f"Chunk #{idx} tiene embedding_text vacío o inválido.")
 
 
 def main():
@@ -39,10 +60,14 @@ def main():
         print("No hay chunks para indexar.")
         return
 
+    validate_chunks(chunks)
+
     FAISS_DIR.mkdir(parents=True, exist_ok=True)
 
     print(f"Cargando modelo de embeddings: {EMBEDDING_MODEL}")
     model = SentenceTransformer(EMBEDDING_MODEL)
+    model.max_seq_length = MODEL_MAX_SEQ_LENGTH
+    print(f"max_seq_length configurado en: {model.max_seq_length}")
 
     print(f"Generando embeddings para {len(chunks)} chunks...")
     all_embeddings = []
@@ -53,11 +78,13 @@ def main():
 
         embeddings = model.encode(
             texts_for_embedding,
+            batch_size=BATCH_SIZE,
             normalize_embeddings=True,
-            show_progress_bar=False
-        )
+            convert_to_numpy=True,
+            show_progress_bar=False,
+        ).astype(np.float32)
 
-        all_embeddings.append(embeddings.astype(np.float32))
+        all_embeddings.append(embeddings)
 
         for item in batch:
             all_metadata.append({
@@ -93,6 +120,7 @@ def main():
 
     print("\nIndexación completada.")
     print(f"Total de chunks indexados: {index.ntotal}")
+    print(f"Dimensión de embeddings: {dimension}")
     print(f"Índice guardado en: {INDEX_FILE}")
     print(f"Metadatos guardados en: {METADATA_FILE}")
 

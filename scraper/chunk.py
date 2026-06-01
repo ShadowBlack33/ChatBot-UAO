@@ -1,6 +1,7 @@
 """
-chunk.py — Genera chunks por tokens reales usando el tokenizer de BAAI/bge-m3.
-Cada chunk conserva metadatos y añade un campo embedding_text para ChromaDB.
+chunk.py — Genera chunks por tokens reales usando el tokenizer de
+sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2.
+Cada chunk conserva metadatos y añade un campo embedding_text para FAISS.
 """
 
 import json
@@ -13,8 +14,8 @@ CLEAN_FILE = BASE_DIR / "data" / "clean" / "biblioteca_clean.json"
 CHUNK_FILE = BASE_DIR / "data" / "clean" / "chunks.json"
 
 MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-MAX_TOKENS = 350
-OVERLAP_TOKENS = 60
+MAX_TOKENS = 100
+OVERLAP_TOKENS = 15
 MIN_CHUNK_CHARS = 80
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -25,7 +26,18 @@ def normalize_text(text: str) -> str:
     return text.strip()
 
 
-def split_text_by_tokens(text: str, max_tokens: int = MAX_TOKENS, overlap: int = OVERLAP_TOKENS) -> list[str]:
+def trim_to_tokens(text: str, max_tokens: int = 120) -> str:
+    token_ids = tokenizer.encode(text, add_special_tokens=False)
+    if len(token_ids) <= max_tokens:
+        return text
+    return tokenizer.decode(token_ids[:max_tokens], skip_special_tokens=True).strip()
+
+
+def split_text_by_tokens(
+    text: str,
+    max_tokens: int = MAX_TOKENS,
+    overlap: int = OVERLAP_TOKENS,
+) -> list[str]:
     text = normalize_text(text)
     if not text:
         return []
@@ -37,6 +49,7 @@ def split_text_by_tokens(text: str, max_tokens: int = MAX_TOKENS, overlap: int =
 
     chunks = []
     start = 0
+    step = max_tokens - overlap
 
     while start < len(token_ids):
         end = min(start + max_tokens, len(token_ids))
@@ -49,16 +62,20 @@ def split_text_by_tokens(text: str, max_tokens: int = MAX_TOKENS, overlap: int =
         if end >= len(token_ids):
             break
 
-        start = max(end - overlap, start + 1)
+        start += step
 
     return chunks
 
 
 def build_embedding_text(title: str, section: str, chunk: str) -> str:
-    return f"Título: {title}\nSección: {section}\nContenido: {chunk}"
+    text = f"Título: {title}. Sección: {section}. Contenido: {chunk}"
+    return trim_to_tokens(text, max_tokens=120)
 
 
 def main():
+    if not CLEAN_FILE.exists():
+        raise FileNotFoundError(f"No existe el archivo: {CLEAN_FILE}")
+
     with open(CLEAN_FILE, "r", encoding="utf-8") as f:
         docs = json.load(f)
 
@@ -98,7 +115,9 @@ def main():
                     "stability": stability,
                     "review_date": review_date,
                     "chunk_length_chars": len(part),
-                    "chunk_length_tokens": len(tokenizer.encode(part, add_special_tokens=False)),
+                    "chunk_length_tokens": len(
+                        tokenizer.encode(part, add_special_tokens=False)
+                    ),
                     "chunk": part,
                     "embedding_text": build_embedding_text(title, heading, part),
                 }

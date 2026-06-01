@@ -11,6 +11,11 @@ env/
 data/raw/
 data/clean/*
 !data/clean/chunks.json
+data/vector_store/
+
+# Notas personales
+DAVID_NOTES.md
+ESTEBAN_NOTES.md
 
 # Python cache
 __pycache__/
@@ -31,5 +36,3 @@ desktop.ini
 # Logs
 *.log
 
-# Presentación
-ChatbotCRAI_NovIA.pptx.pptx
