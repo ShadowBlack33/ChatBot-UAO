@@ -307,8 +307,8 @@ ChatBot-UAO/
 |---|---|
 | Modelo | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
 | Tipo | Multilingüe |
-| Dimensión | 384 [web:953] |
-| Max sequence length | 128 tokens [web:953] |
+| Dimensión | 384  |
+| Max sequence length | 128 tokens |
 
 El modelo de embeddings soporta múltiples idiomas y está pensado para tareas de búsqueda semántica y clustering [web:953][web:987].
 
